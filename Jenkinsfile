@@ -24,31 +24,25 @@ pipeline {
 
         stage('Verify composer.json') {
             steps {
-                sh 'ls -la webnoithat'
+                sh 'ls -la'
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                dir('webnoithat') {
-                    sh 'composer install --no-interaction --prefer-dist'
-                }
+                sh 'composer install --no-interaction --prefer-dist'
             }
         }
 
         stage('Run Security Scan') {
             steps {
-                dir('webnoithat') {
-                    sh 'snyk test || true'
-                }
+                sh 'snyk test || true'
             }
         }
 
         stage('Run Unit Tests') {
             steps {
-                dir('webnoithat') {
-                    sh './vendor/bin/phpunit'
-                }
+                sh './vendor/bin/phpunit'
             }
         }
 
