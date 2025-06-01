@@ -50,6 +50,18 @@ pipeline {
         }
     }
 
+    stage('Snyk Code Scan') {
+    steps {
+        withCredentials([string(credentialsId: 'snyk-api-token', variable: 'SNYK_TOKEN')]) {
+            sh '''
+                npm install -g snyk
+                snyk auth $SNYK_TOKEN
+                snyk code test || true
+            '''
+            }
+        }
+    }
+
     post {
         success {
             echo 'Laravel build and tests passed.'
