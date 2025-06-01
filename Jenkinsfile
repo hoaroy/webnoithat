@@ -34,11 +34,7 @@ pipeline {
                     echo "DB_PORT=${DB_PORT}" >> .env
                     echo "DB_DATABASE=${DB_DATABASE}" >> .env
                     echo "DB_USERNAME=${DB_USERNAME}" >> .env
-                    echo "DB_PASSWORD=${DB_PASSWORD}" >> .env
-
-                    php artisan config:clear
-                    php artisan key:generate
-                    php artisan migrate --force
+                                       php artisan migrate --force
                 '''
             }
         }
@@ -48,7 +44,11 @@ pipeline {
                 sh './vendor/bin/phpunit'
             }
         }
- tests passed.'
+    }
+
+    post {
+        success {
+            echo 'Laravel build and tests passed.'
         }
         failure {
             echo 'Tests or setup failed.'
