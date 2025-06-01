@@ -1,55 +1,61 @@
 pipeline {
     agent any
 
-    options {
-        skipDefaultCheckout()
-    }
-
     environment {
-        SNYK_TOKEN = credentials('snyk-api-token')
+        APP_ENV = 'testing'
+        APP_KEY = ''
+        DB_CONNECTION = 'mysql'
+        DB_HOST = 'localhost'
+        DB_PORT = '3306'
+        DB_DATABASE = 'webnoithat_test'
+        DB_USERNAME = 'root'
+        DB_PASSWORD = ''
     }
 
     stages {
-        stage('Cleanup Workspace') {
+        stage('Clone Source Code') {
             steps {
-                cleanWs()
-            }
-        }
-
-        stage('Checkout') {
-            steps {
-                git credentialsId: 'github-token', url: 'https://github.com/hoaroy/webnoithat.git'
-            }
-        }
-
-        stage('Verify composer.json') {
-            steps {
-                sh 'ls -la'
+                git branch: 'master',
+                    url: 'https://github.com/hoaroy/webnoithat.git'
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                sh 'composer install --no-interaction --prefer-dist'
+                dir('webnoithat') {
+                    sh 'composer install'
+                }
             }
         }
 
-        stage('Run Security Scan') {
+        stage('Prepare Laravel') {
             steps {
-                sh 'snyk test || true'
+                dir('webnoithat') {
+                    sh '''
+                        cp .env.example .env
+                        php artisan config:clear
+                        php artisan key:generate
+                        php artisan migrate --force
+                    '''
+                }
             }
         }
 
-        stage('Run Unit Tests') {
+        stage('Run Tests') {
             steps {
-                sh './vendor/bin/phpunit'
+                dir('webnoithat') {
+                    sh './vendor/bin/phpunit'
+                }
             }
         }
+    }
 
-        stage('Deploy or Package') {
-            steps {
-                echo 'Triển khai hoặc build nếu cần (copy lên host, FTP, v.v.)'
-            }
+    post {
+        success {
+            echo 'Laravel build and tests passed.'
+        }
+        failure {
+            echo 'Tests or setup failed.'
         }
     }
 }
