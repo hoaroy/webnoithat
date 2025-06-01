@@ -22,30 +22,30 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                dir('webnoithat') {
+                //dir('webnoithat') {
                     sh 'composer install'
-                }
+               // }
             }
         }
 
         stage('Prepare Laravel') {
             steps {
-                dir('webnoithat') {
+                // dir('webnoithat') {
                     sh '''
                         cp .env.example .env
                         php artisan config:clear
                         php artisan key:generate
                         php artisan migrate --force
                     '''
-                }
+               // }
             }
         }
 
         stage('Run Tests') {
             steps {
-                dir('webnoithat') {
+                //dir('webnoithat') {
                     sh './vendor/bin/phpunit'
-                }
+//}
             }
         }
     }
