@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         APP_ENV = 'testing'
+        APP_KEY = ''
         DB_CONNECTION = 'mysql'
         DB_HOST = 'localhost'
         DB_PORT = '3306'
@@ -14,34 +15,37 @@ pipeline {
     stages {
         stage('Clone Source Code') {
             steps {
-                git branch: 'master', url: 'https://github.com/hoaroy/webnoithat.git'
+                git branch: 'master',
+                    url: 'https://github.com/hoaroy/webnoithat.git'
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                sh 'composer install --no-interaction --prefer-dist'
+                //dir('webnoithat') {
+                    sh 'composer install'
+               // }
             }
         }
 
         stage('Prepare Laravel') {
             steps {
-                sh '''
-                    cp .env.example .env
-                    echo "APP_ENV=${APP_ENV}" >> .env
-                    echo "DB_CONNECTION=${DB_CONNECTION}" >> .env
-                    echo "DB_HOST=${DB_HOST}" >> .env
-                    echo "DB_PORT=${DB_PORT}" >> .env
-                    echo "DB_DATABASE=${DB_DATABASE}" >> .env
-                    echo "DB_USERNAME=${DB_USERNAME}" >> .env
-                                       php artisan migrate --force
-                '''
+                // dir('webnoithat') {
+                    sh '''
+                        cp .env.example .env
+                        php artisan config:clear
+                        php artisan key:generate
+                        php artisan migrate --force
+                    '''
+               // }
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh './vendor/bin/phpunit'
+                //dir('webnoithat') {
+                    sh './vendor/bin/phpunit'
+//}
             }
         }
     }
