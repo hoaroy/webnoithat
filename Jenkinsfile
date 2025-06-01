@@ -54,7 +54,7 @@ pipeline {
         withCredentials([string(credentialsId: 'snyk-api-token', variable: 'SNYK_TOKEN')]) {
             sh '''
                 npm install -g snyk
-                export PATH="$(npm bin -g):$PATH"
+                export PATH=$(npm config get prefix)/bin:$PATH
                 snyk auth $SNYK_TOKEN
                 snyk code test || true
             '''
