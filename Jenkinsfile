@@ -48,9 +48,8 @@ pipeline {
 //}
             }
         }
-    }
 
-    stage('Snyk Code Scan') {
+        stage('Snyk Code Scan') {
     steps {
         withCredentials([string(credentialsId: 'snyk-api-token', variable: 'SNYK_TOKEN')]) {
             sh '''
@@ -60,7 +59,8 @@ pipeline {
             '''
             }
         }
-    }
+    }  
+}
 
     post {
         success {
