@@ -7,7 +7,7 @@ pipeline {
         DB_CONNECTION = 'mysql'
         DB_HOST = 'localhost'
         DB_PORT = '3306'
-        DB_DATABASE = 'webnoithat_test'
+        DB_DATABASE = 'noithat'
         DB_USERNAME = 'root'
         DB_PASSWORD = ''
     }
