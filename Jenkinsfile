@@ -10,6 +10,9 @@ pipeline {
         DB_DATABASE = 'noithat'
         DB_USERNAME = 'root'
         DB_PASSWORD = ''
+
+        JIRA_TICKET = 'SCRUM-1'
+        JIRA_URL = 'https://hoaroy2710.atlassian.net'
     }
 
     stages {
@@ -66,9 +69,52 @@ pipeline {
     post {
         success {
             echo 'Laravel build and tests passed.'
+            script {
+                withCredentials([usernamePassword(credentialsId: 'jira-api-token', usernameVariable: 'JIRA_USER', passwordVariable: 'JIRA_TOKEN')]) {
+                    sh '''
+                        curl -X POST -u "$JIRA_USER:$JIRA_TOKEN" \
+                          -H "Content-Type: application/json" \
+                          --data "{\"body\": \"Jenkins build *passed* for $JIRA_TICKET on branch *master*.\"}" \
+                          $JIRA_URL/rest/api/2/issue/$JIRA_TICKET/comment
+                    '''
+                }
+            }
         }
         failure {
             echo 'Tests or setup failed.'
+            withCredentials([
+                usernamePassword(
+                    credentialsId: 'jira-api-token',  
+                    usernameVariable: 'JIRA_USER',
+                    passwordVariable: 'JIRA_TOKEN'
+                )
+            ]) {
+                script {
+                    def summary = "CI/CD Pipeline Failed: Web Nội Thất"
+                    def description = "Build failed during Jenkins pipeline.\n\nBranch: master\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nURL: ${env.BUILD_URL}"
+                    def payload = """
+                    {
+                      "fields": {
+                        "project": {
+                          "key": "SCRUM" 
+                        },
+                        "summary": "${summary}",
+                        "description": "${description}",
+                        "issuetype": {
+                          "name": "Bug"
+                        }
+                      }
+                    }
+                    """
+
+                    sh """
+                    curl -X POST -H "Content-Type: application/json" \
+                         -u "$JIRA_USER:$JIRA_TOKEN" \
+                         --data '${payload}' \
+                         https://hoaroy2710.atlassian.net/rest/api/2/issue/ 
+                    """
+                }
+            }
         }
     }
 }
