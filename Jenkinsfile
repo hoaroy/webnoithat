@@ -108,10 +108,11 @@ pipeline {
                     """
 
                     sh """
-                    curl -X POST -H "Content-Type: application/json" \
-                         -u "$JIRA_USER:$JIRA_TOKEN" \
-                         --data '${payload}' \
-                         https://hoaroy2710.atlassian.net/rest/api/2/issue/ 
+                        curl -X POST -H "Content-Type: application/json" \
+                        -u "$JIRA_USER:$JIRA_TOKEN" \
+                        --data @- <<EOF
+                        ${payload}
+                        EOF
                     """
                 }
             }
