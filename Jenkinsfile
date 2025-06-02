@@ -70,13 +70,14 @@ pipeline {
         success {
             echo 'Laravel build and tests passed.'
             script {
-                withCredentials([usernamePassword(credentialsId: 'jira-api-token', usernameVariable: 'JIRA_USER', passwordVariable: 'JIRA_TOKEN')]) {
+                withCredentials([string(credentialsId: 'jira-api-token', variable: 'JIRA_TOKEN')]) {
                     sh '''
-                        curl -X POST -u "$JIRA_USER:$JIRA_TOKEN" \
-                          -H "Content-Type: application/json" \
-                          --data "{\"body\": \"Jenkins build *passed* for $JIRA_TICKET on branch *master*.\"}" \
-                          $JIRA_URL/rest/api/2/issue/$JIRA_TICKET/comment
-                    '''
+                        curl -X POST \
+                        -H "Content-Type: application/json" \
+                        -u "hoaroy2710@gmail.com:$JIRA_TOKEN" \
+                        --data '{"body": "Jenkins build *passed* for SCRUM-1 on branch *master*."}' \
+                        https://hoaroy2710.atlassian.net/rest/api/2/issue/SCRUM-1/comment
+                        '''
                 }
             }
         }
