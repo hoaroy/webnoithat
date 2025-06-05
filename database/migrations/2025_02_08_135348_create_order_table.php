@@ -13,15 +13,17 @@ class CreateOrderTable extends Migration
      */
     public function up()
     {
-        Schema::create('order', function (Blueprint $table) {
-            $table->id('order_id');
-            $table->unsignedBigInteger('cus_id');
-            $table->foreign('cus_id')->references('customer_id')->on('customer')->onUpdate('cascade')->onDelete('cascade');
-            $table->string('order_code',255);
-            $table->tinyInteger('order_status',0);
-            $table->tinyInteger('order_review',0);
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('order')) {
+            Schema::create('order', function (Blueprint $table) {
+                $table->id('order_id');
+                $table->unsignedBigInteger('cus_id');
+                $table->foreign('cus_id')->references('customer_id')->on('customer')->onUpdate('cascade')->onDelete('cascade');
+                $table->string('order_code',255);
+                $table->tinyInteger('order_status',0);
+                $table->tinyInteger('order_review',0);
+                $table->timestamps();
+            });
+        }
     }
 
     /**
