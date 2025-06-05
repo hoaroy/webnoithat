@@ -13,14 +13,16 @@ class CreateWishlistTable extends Migration
      */
     public function up()
     {
-        Schema::create('wishlist', function (Blueprint $table) {
-            $table->id('wishlist_id');
-            $table->unsignedBigInteger('pro_id');
-            $table->foreign('pro_id')->references('product_id')->on('product')->onUpdate('cascade')->onDelete('cascade');
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('wishlist')) {
+            Schema::create('wishlist', function (Blueprint $table) {
+                $table->id('wishlist_id');
+                $table->unsignedBigInteger('pro_id');
+                $table->foreign('pro_id')->references('product_id')->on('product')->onUpdate('cascade')->onDelete('cascade');
+                $table->unsignedBigInteger('user_id');
+                $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
+                $table->timestamps();
+            });
+        }
     }
 
     /**
