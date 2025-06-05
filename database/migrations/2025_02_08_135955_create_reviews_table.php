@@ -13,16 +13,18 @@ class CreateReviewsTable extends Migration
      */
     public function up()
     {
-        Schema::create('reviews', function (Blueprint $table) {
-            $table->id('review_id');
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
-            $table->unsignedBigInteger('pro_id');
-            $table->foreign('pro_id')->references('product_id')->on('product')->onUpdate('cascade')->onDelete('cascade');
-            $table->integer('review_rating');
-            $table->string('review_desc',255);
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('reviews')) {
+            Schema::create('reviews', function (Blueprint $table) {
+                $table->id('review_id');
+                $table->unsignedBigInteger('user_id');
+                $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
+                $table->unsignedBigInteger('pro_id');
+                $table->foreign('pro_id')->references('product_id')->on('product')->onUpdate('cascade')->onDelete('cascade');
+                $table->integer('review_rating');
+                $table->string('review_desc',255);
+                $table->timestamps();
+            });
+        }
     }
 
     /**
