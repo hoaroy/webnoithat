@@ -13,18 +13,20 @@ class CreateCouponTable extends Migration
      */
     public function up()
     {
-        Schema::create('coupon', function (Blueprint $table) {
-            $table->id('coupon_id');
-            $table->string('coupon_code',50);
-            $table->integer('coupon_qty');
-            $table->string('coupon_date_start',100);
-            $table->string('coupon_date_end',100);
-            $table->string('coupon_used',100)->nullable();
-            $table->integer('coupon_condition');
-            $table->integer('coupon_sale_number');
-            $table->tinyInteger('coupon_status',0);
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('coupon')) {
+            Schema::create('coupon', function (Blueprint $table) {
+                $table->id('coupon_id');
+                $table->string('coupon_code',50);
+                $table->integer('coupon_qty');
+                $table->string('coupon_date_start',100);
+                $table->string('coupon_date_end',100);
+                $table->string('coupon_used',100)->nullable();
+                $table->integer('coupon_condition');
+                $table->integer('coupon_sale_number');
+                $table->tinyInteger('coupon_status',0);
+                $table->timestamps();
+            });
+        }
     }
 
     /**
