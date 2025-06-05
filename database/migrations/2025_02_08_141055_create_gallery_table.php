@@ -13,13 +13,15 @@ class CreateGalleryTable extends Migration
      */
     public function up()
     {
-        Schema::create('gallery', function (Blueprint $table) {
-            $table->id('gallery_id');
-            $table->unsignedBigInteger('pro_id');
-            $table->foreign('pro_id')->references('product_id')->on('product')->onUpdate('cascade')->onDelete('cascade');
-            $table->string('gallery_image',255);
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('gallery')) {
+            Schema::create('gallery', function (Blueprint $table) {
+                $table->id('gallery_id');
+                $table->unsignedBigInteger('pro_id');
+                $table->foreign('pro_id')->references('product_id')->on('product')->onUpdate('cascade')->onDelete('cascade');
+                $table->string('gallery_image',255);
+                $table->timestamps();
+            });
+        }
     }
 
     /**
