@@ -13,16 +13,18 @@ class CreateSliderTable extends Migration
      */
     public function up()
     {
-        Schema::create('slider', function (Blueprint $table) {
-            $table->id('slider_id');
-            $table->string('slider_name',255);
-            $table->string('slider_desc',255);
-            $table->string('slider_url',255);
-            $table->string('slider_image',255);
-            $table->integer('slider_sorting');
-            $table->tinyInteger('slider_status',0);
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('slider')) {
+            Schema::create('slider', function (Blueprint $table) {
+                $table->id('slider_id');
+                $table->string('slider_name',255);
+                $table->string('slider_desc',255);
+                $table->string('slider_url',255);
+                $table->string('slider_image',255);
+                $table->integer('slider_sorting');
+                $table->tinyInteger('slider_status',0);
+                $table->timestamps();
+            });
+        }
     }
 
     /**
