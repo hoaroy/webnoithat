@@ -9,4 +9,6 @@
 Homestead.json
 Homestead.yaml
 npm-debug.log
+/tests/Feature/AuthTest.php
+/tests/Feature/UserSecurityTest.php
 yarn-error.log
