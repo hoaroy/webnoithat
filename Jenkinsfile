@@ -60,52 +60,57 @@ pipeline {
         }  
     }
 
-    failure {
-        echo 'Tests or setup failed.'
+    post {
+        failure {
+            echo 'Build failed — sending issue to Jira.'
 
-        withCredentials([
-            usernamePassword(
-                credentialsId: 'jira-api-tokenn', 
-                usernameVariable: 'JIRA_USER',
-                passwordVariable: 'JIRA_TOKEN'
-            )
-        ]) {
-            script {
-                def summary = "CI/CD Pipeline Failed: Web Noi That"
-                def description = """
-                    Build failed in Jenkins.
-                    
-                    • Branch: ${env.BRANCH_NAME ?: 'master'}
-                    • Job: ${env.JOB_NAME}
-                    • Build #: ${env.BUILD_NUMBER}
-                    • URL: ${env.BUILD_URL}
-                """.stripIndent().trim()
+            withCredentials([
+                usernamePassword(
+                    credentialsId: 'jira-api-tokenn', 
+                    usernameVariable: 'JIRA_USER',
+                    passwordVariable: 'JIRA_TOKEN'
+                )
+            ]) {
+                script {
+                    def summary = "CI/CD Pipeline Failed: Web Nội Thất"
+                    def description = """
+                        Build failed in Jenkins:
+                        • Branch: ${env.BRANCH_NAME ?: 'master'}
+                        • Job: ${env.JOB_NAME}
+                        • Build #: ${env.BUILD_NUMBER}
+                        • URL: ${env.BUILD_URL}
+                    """.stripIndent().trim()
 
-                def payload = """
-                {
-                  "fields": {
-                    "project": {
-                      "key": "SCRUM"
-                    },
-                    "summary": "${summary}",
-                    "description": "${description}",
-                    "issuetype": {
-                      "name": "Bug"
+                    def payload = """
+                    {
+                      "fields": {
+                        "project": {
+                          "key": "SCRUM"
+                        },
+                        "summary": "${summary}",
+                        "description": "${description}",
+                        "issuetype": {
+                          "name": "Bug"
+                        }
+                      }
                     }
-                  }
-                }
-                """
+                    """
 
-                echo "Sending Jira issue payload..."
-                sh """
-                    curl --fail -X POST \\
-                         -H "Content-Type: application/json" \\
-                         -u "$JIRA_USER:$JIRA_TOKEN" \\
-                         --data @- <<EOF
+                    echo "Sending Jira ticket to ${env.JIRA_URL}"
+                    sh """
+                        curl --fail -X POST \\
+                             -H "Content-Type: application/json" \\
+                             -u "$JIRA_USER:$JIRA_TOKEN" \\
+                             --data @- <<EOF
 ${payload}
 EOF
-                """
+                    """
+                }
             }
+        }
+
+        success {
+            echo 'Build and tests passed successfully.'
         }
     }
 }
