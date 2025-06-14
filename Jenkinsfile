@@ -111,6 +111,25 @@ EOF
 
         success {
             echo 'Build and tests passed successfully.'
+
+            withCredentials([
+            usernamePassword(
+                credentialsId: 'jira-api-tokenn',
+                usernameVariable: 'JIRA_USER',
+                passwordVariable: 'JIRA_TOKEN'
+            )
+        ]) {
+            script {
+                def comment = "✅ Jenkins build *passed* for ${env.JIRA_TICKET} on branch *${env.BRANCH_NAME ?: 'master'}*."
+
+                sh """
+                    curl -X POST \\
+                         -H "Content-Type: application/json" \\
+                         -u "$JIRA_USER:$JIRA_TOKEN" \\
+                         --data '{ "body": "${comment}" }' \\
+                         ${env.JIRA_URL}/rest/api/2/issue/${env.JIRA_TICKET}/comment
+                """
+            }
         }
     }
 }
