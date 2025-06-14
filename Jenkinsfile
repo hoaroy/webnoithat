@@ -60,60 +60,51 @@ pipeline {
         }  
     }
 
-    post {
-        success {
-            echo 'Laravel build and tests passed.'
-            withCredentials([
-                usernamePassword(
-                    credentialsId: 'jira-api-tokenn', 
-                    usernameVariable: 'JIRA_USER',
-                    passwordVariable: 'JIRA_TOKEN'
-                )
-            ]) {
-                sh '''
-                    curl -X POST \
-                    -H "Content-Type: application/json" \
-                    -u "$JIRA_USER:$JIRA_TOKEN" \
-                    --data '{"body": "Jenkins build *passed* for SCRUM-1 on branch *master*."}' \
-                    https://hoaroy2710.atlassian.net/rest/api/2/issue/SCRUM-1/comment
-                '''
-            }
-        }
+    failure {
+        echo 'Tests or setup failed.'
 
-        failure {
-            echo 'Tests or setup failed.'
-            withCredentials([
-                usernamePassword(
-                    credentialsId: 'jira-api-tokenn',  
-                    usernameVariable: 'JIRA_USER',
-                    passwordVariable: 'JIRA_TOKEN'
-                )
-            ]) {
-                script {
-                    def summary = "CI/CD Pipeline Failed: Web Noi That"
-                    def description = "Build failed during Jenkins pipeline.\n\nBranch: master\nJob: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nURL: ${env.BUILD_URL}"
-                    def payload = """
-                    {
-                      "fields": {
-                        "project": {
-                          "key": "SCRUM"
-                        },
-                        "summary": "${summary}",
-                        "description": "${description}",
-                        "issuetype": {
-                          "name": "Bug"
-                        }
-                      }
+        withCredentials([
+            usernamePassword(
+                credentialsId: 'jira-api-tokenn', 
+                usernameVariable: 'JIRA_USER',
+                passwordVariable: 'JIRA_TOKEN'
+            )
+        ]) {
+            script {
+                def summary = "CI/CD Pipeline Failed: Web Noi That"
+                def description = """
+                    Build failed in Jenkins.
+                    
+                    • Branch: ${env.BRANCH_NAME ?: 'master'}
+                    • Job: ${env.JOB_NAME}
+                    • Build #: ${env.BUILD_NUMBER}
+                    • URL: ${env.BUILD_URL}
+                """.stripIndent().trim()
+
+                def payload = """
+                {
+                  "fields": {
+                    "project": {
+                      "key": "SCRUM"
+                    },
+                    "summary": "${summary}",
+                    "description": "${description}",
+                    "issuetype": {
+                      "name": "Bug"
                     }
-                    """
-
-                    sh """
-                        curl -X POST -H "Content-Type: application/json" \
-                        -u "$JIRA_USER:$JIRA_TOKEN" \
-                        --data '${payload}' \
-                        https://hoaroy2710.atlassian.net/rest/api/2/issue
-                    """
+                  }
                 }
+                """
+
+                echo "Sending Jira issue payload..."
+                sh """
+                    curl --fail -X POST \\
+                         -H "Content-Type: application/json" \\
+                         -u "$JIRA_USER:$JIRA_TOKEN" \\
+                         --data @- <<EOF
+${payload}
+EOF
+                """
             }
         }
     }
