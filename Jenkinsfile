@@ -53,7 +53,7 @@ pipeline {
                         npm install -g snyk@1.1185.0
                         export PATH=$(npm config get prefix)/bin:$PATH
                         snyk auth $SNYK_TOKEN
-                        //snyk code test || true
+                        snyk code test || true
                     '''
                 }
             }
